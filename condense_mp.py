@@ -23,7 +23,7 @@ import glob
 class Synthesizer():
     """Condensed data class
     """
-    def __init__(self, args, nclass_sub, subclass_list, nchannel, hs, ws, device='cuda'):
+    def __init__(self, args, nclass_sub, subclass_list, nchannel, hs, ws, device='cpu'):
         self.ipc = args.ipc
         self.nclass_sub = nclass_sub
         self.subclass_list = subclass_list
@@ -296,7 +296,7 @@ def remove_aug(augtype, remove_aug):
     return "_".join(aug_list)
 
 
-def diffaug(args, device='cuda'):
+def diffaug(args, device='cpu'):
     """Differentiable augmentation for condensation
     """
     aug_type = args.aug_type
@@ -393,7 +393,7 @@ def pretrain_sample(args, model, verbose=False):
     load_ckpt(model, file_dir, verbose=verbose)
 
 
-def condense(args, logger, device='cuda'):
+def condense(args, logger, device='cpu'):
     """Optimize condensed data
     """
     # Define subclass list and reverse mapping
@@ -548,7 +548,7 @@ if __name__ == '__main__':
     if args.seed > 0:
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
-        torch.cuda.manual_seed(args.seed)
+        # torch.cuda.manual_seed(args.seed)
 
     os.makedirs(args.save_dir, exist_ok=True)
     cur_file = os.path.join(os.getcwd(), __file__)

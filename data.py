@@ -378,7 +378,7 @@ class MultiEpochsDataLoader(torch.utils.data.DataLoader):
         if self.dataset[0][0].device == torch.device('cpu'):
             self.device = 'cpu'
         else:
-            self.device = 'cuda'
+            self.device = 'cpu'
 
     def __len__(self):
         return len(self.batch_sampler)
@@ -406,7 +406,7 @@ class ClassDataLoader(MultiEpochsDataLoader):
         self.cls_targets = torch.tensor([np.ones(self.batch_size) * c for c in range(self.nclass)],
                                         dtype=torch.long,
                                         requires_grad=False,
-                                        device='cuda')
+                                        device='cpu')
 
     def class_sample(self, c, ipc=-1):
         if ipc > 0:
@@ -416,20 +416,21 @@ class ClassDataLoader(MultiEpochsDataLoader):
 
         data = torch.stack([self.dataset[i][0] for i in indices])
         target = torch.tensor([self.dataset.targets[i] for i in indices])
-        return data.cuda(), target.cuda()
+        # return data.cuda(), target.cuda()
+        return data, target
 
     def sample(self):
         data, target = next(self.iterator)
         if self.convert != None:
             data = self.convert(data)
-
-        return data.cuda(), target.cuda()
+        #return data.cuda(), target.cuda()
+        return data, target
 
 
 class ClassMemDataLoader():
     """Class loader with data on GPUs
     """
-    def __init__(self, dataset, batch_size, drop_last=False, device='cuda'):
+    def __init__(self, dataset, batch_size, drop_last=False, device='cpu'):
         self.device = device
         self.batch_size = batch_size
 
@@ -507,7 +508,8 @@ class ClassPartMemDataLoader(MultiEpochsDataLoader):
         for i in range(len(self.dataset)):
             c = self.dataset.targets[i]
             if c in self.mem_cls:
-                self.data_mem.append(self.dataset[i][0].cuda())
+                self.data_mem.append(self.dataset[i][0])
+                # self.data_mem.append(self.dataset[i][0].cuda())
                 self.cls_idx[c].append(idx)
                 idx += 1
 
@@ -522,7 +524,7 @@ class ClassPartMemDataLoader(MultiEpochsDataLoader):
         self.cls_targets = torch.tensor([np.ones(class_batch_size) * c for c in range(self.nclass)],
                                         dtype=torch.long,
                                         requires_grad=False,
-                                        device='cuda')
+                                        device='cpu')
 
     def class_sample(self, c, ipc=-1):
         if ipc > 0:
@@ -543,7 +545,8 @@ class ClassPartMemDataLoader(MultiEpochsDataLoader):
         if self.convert != None:
             data = self.convert(data)
 
-        return data.cuda(), target.cuda()
+        # return data.cuda(), target.cuda()
+        return data, target
 
 
 def load_data(args):

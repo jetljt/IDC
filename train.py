@@ -27,9 +27,9 @@ model_names = sorted(
 mean_torch = {}
 std_torch = {}
 for key, val in MEANS.items():
-    mean_torch[key] = torch.tensor(val, device='cuda').reshape(1, len(val), 1, 1)
+    mean_torch[key] = torch.tensor(val, device='cpu').reshape(1, len(val), 1, 1)
 for key, val in STDS.items():
-    std_torch[key] = torch.tensor(val, device='cuda').reshape(1, len(val), 1, 1)
+    std_torch[key] = torch.tensor(val, device='cpu').reshape(1, len(val), 1, 1)
 
 
 def define_model(args, nclass, logger=None, size=None):
@@ -80,7 +80,7 @@ def main(args, logger, repeat=1):
     if args.seed >= 0:
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
-        torch.cuda.manual_seed(args.seed)
+        # torch.cuda.manual_seed(args.seed)
 
     cudnn.benchmark = True
     _, train_loader, val_loader, nclass = load_data(args)
@@ -100,7 +100,8 @@ def main(args, logger, repeat=1):
 
 
 def train(args, model, train_loader, val_loader, plotter=None, logger=None):
-    criterion = nn.CrossEntropyLoss().cuda()
+    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss().cuda()
     optimizer = optim.SGD(model.parameters(),
                           args.lr,
                           momentum=args.momentum,
@@ -117,7 +118,7 @@ def train(args, model, train_loader, val_loader, plotter=None, logger=None):
         # TODO: optimizer scheduler steps
 
     # model = torch.nn.DataParallel(model).cuda()
-    model = model.cuda()
+    # model = model.cuda()
     if args.dsa:
         aug = DiffAug(strategy=args.dsa_strategy, batch=False)
         logger(f"Start training with DSA and {args.mixup} mixup")
@@ -187,9 +188,9 @@ def train_epoch(args,
     end = time.time()
     num_exp = 0
     for i, (input, target) in enumerate(train_loader):
-        if train_loader.device == 'cpu':
-            input = input.cuda()
-            target = target.cuda()
+        # if train_loader.device == 'cpu':
+        #     input = input.cuda()
+        #     target = target.cuda()
 
         data_time.update(time.time() - end)
 
@@ -270,8 +271,8 @@ def validate(args, val_loader, model, criterion, epoch, logger=None):
 
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
-        input = input.cuda()
-        target = target.cuda()
+        # input = input.cuda()
+        # target = target.cuda()
         output = model(input)
 
         loss = criterion(output, target)

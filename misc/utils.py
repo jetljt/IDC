@@ -153,7 +153,7 @@ class Plotter():
         plt.close()
 
 
-def random_indices(y, nclass=10, intraclass=False, device='cuda'):
+def random_indices(y, nclass=10, intraclass=False, device='cpu'):
     n = len(y)
     if intraclass:
         index = torch.arange(n).to(device)

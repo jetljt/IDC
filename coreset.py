@@ -29,7 +29,8 @@ def load_ckpt(model, file_dir, verbose=True):
 
 
 def load_pretrained_herding(args):
-    model = define_model(args, args.nclass).cuda()
+    model = define_model(args, args.nclass)
+    # model = define_model(args, args.nclass).cuda()
     if args.dataset == 'imagenet':
         traindir = os.path.join(args.imagenet_dir, 'train')
         valdir = os.path.join(args.imagenet_dir, 'val')
@@ -100,8 +101,8 @@ def get_features(model, f_idx, loader):
     with torch.no_grad():
         model.eval()
         for input, target in loader:
-            input = input.cuda()
-            target = target.cuda()
+            # input = input.cuda()
+            # target = target.cuda()
 
             feat = model.get_feature(input, f_idx)[0]
             feat = feat.reshape(feat.size(0), -1)

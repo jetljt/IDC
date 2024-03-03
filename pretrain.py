@@ -8,7 +8,7 @@ from train import define_model, train_epoch, validate
 from condense import load_resized_data, diffaug
 
 
-def pretrain(args, logger, device='cuda'):
+def pretrain(args, logger, device='cpu'):
     trainset, val_loader = load_resized_data(args)
     if args.load_memory:
         loader_real = ClassMemDataLoader(trainset, batch_size=args.batch_real)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     if args.seed > 0:
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
-        torch.cuda.manual_seed(args.seed)
+        # torch.cuda.manual_seed(args.seed)
 
     args.save_dir = f"./pretrained/{args.datatag}/{args.modeltag}{args.tag}_{args.seed}"
     os.makedirs(args.save_dir, exist_ok=True)
